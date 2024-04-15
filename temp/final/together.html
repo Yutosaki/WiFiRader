@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シフト予定カレンダー</title>
+<link rel="stylesheet" href="together.css">
+</head>
+
+<body>
+  <header>
+    <h1>Weekly Calendar</h1>
+  </header>
+  <div class="input">
+    <!-- Hine's Calendar -->
+    <div class="calendar-container">
+
+      <table class="calendar">
+        <thead>
+        </thead>
+        <tbody>
+          <!-- Loop through time slots -->
+          <!-- For simplicity, use 30-minute intervals -->
+          <!-- You can modify this based on your needs -->
+          <!-- Add event data dynamically using JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Form -->
+    <div class="Form">
+      <form name="Form">
+          <h2>入力フォーム</h2>
+          <!-- メールアドレス -->
+          <!-- <label for="email" id="email" required>メールアドレス</label>
+          <input class="Form-Item" type="email" id="email" name="email"> -->
+  
+          <!-- 移動時間の入力 -->
+          <label for="transfer-time">移動時間(分)</label>
+          <input class="Form-Item" type="number" name="transfer-time" id="transfer-time" min="0" required>
+          
+          <!-- 週最低時間 -->
+          <label for="min-weekly-hours">週最低労働時間(時間)</label>
+          <input class="Form-Item" type="number" name="min-weekly-hours" id="min-weekly-hours" max="168" required>
+          
+          <!-- 1出勤の最低労働時間 -->
+          <label for="min-hours">1出勤の最低労働時間(時間)</label>
+          <input class="Form-Item" type="number" name="min-hours" id="min-hours" max="24" required>
+  
+          <!-- バイト先営業開始終了時間 -->
+          <label for="basaki-stime">バイト先営業開始時間</label>
+          <input class="Form-Item" type="time" name="basaki-stime" id="basaki-stime" required>
+  
+          <label for="basaki-etime">バイト先営業終了時間</label>
+          <input class="Form-Item" type="time" name="basaki-etime" id="basaki-etime" required>
+  
+          <!-- バイト開始終了時間 -->
+          <!-- <label for="stime">バイト開始時間</label>
+          <input class="Form-Item" type="time" name="stime" id="stime" required>
+  
+          <label for="etime">バイト終了時間</label>
+          <input class="Form-Item" type="time" name="etime" id="etime" required> -->
+  
+          <!-- 朝か昼か夜か -->
+          <!-- <label for="preferred-period">好みの時間帯</label>
+          <select class="Form-Item" name="preferred-period" id="preferred-period">
+              <option value="dawn">00:00~06:00</option>
+              <option value="morning">06:00~12:00</option>
+              <option value="afternoon">12:00~18:00</option>
+              <option value="night">18:00~24:00</option>
+          </select> -->
+  
+          <!-- 週に稼ぎたい額-->
+          <!-- <label for="income">週に稼ぎたい額</label>
+          <input class="Form-Item" type="number" name="income" id="income">
+          <br> -->
+          
+          <!-- バイトの時給 -->
+          <!-- <label for="hourly-wage">バイトの時給</label> 
+          <input class="Form-Item" type="number" name="hourly-wage" id="hourly-wage"> -->
+          <!-- <br>
+          <br> -->
+          
+          <button type="button" name="submit" id="submit">決定</button>
+      </form>
+    </div>
+  </div>
+  
+
+  <div class="button">
+    <button id="generateSchedule">作成</button>
+  </div>
+  <div class="output">
+
+<div class="calender-container">
+  <div id="timeColumn">
+
+    <div class="dayTitle">月</div>
+    <div class="dayTitle">火</div>
+    <div class="dayTitle">水</div>
+    <div class="dayTitle">木</div>
+    <div class="dayTitle">金</div>
+    <div class="dayTitle">土</div>
+    <div class="dayTitle">日</div>
+  </div>
+  <div id="scheduleCalendar"></div>
+</div>
+</div>
+<div class="text-columns">
+  <div class="class-time">授業時間</div>
+  <div class="work-time">シフト時間</div>
+  <div class="google-calendar-time">Googleカレンダーからの予定</div>
+  <div class="commute-time">移動時間</div>
+</div>
+  </div>
+
+  <script src="input_cal.js"></script>
+  <script src="output_cal.js"></script>
+  <script src="oauth.js"></script>
+  <script src="gen_schedule.js"></script>
+  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+	<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+
+</body>
+
+</html>

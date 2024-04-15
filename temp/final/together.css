@@ -1,0 +1,267 @@
+body {
+    font-family: Ariel, sans-serif;
+    margin: 0;
+    height: 100%;
+}
+
+/* Input */
+.input {
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Form */
+.Form {
+    font-family: Ariel, sans-serif;
+    }
+
+.Form-Item {
+    margin: 10px;
+    display: block;
+}
+
+label {
+    width: 10em;
+    float: left; /* makes the element act like inline block */
+    clear: left; /* clears any left floats so before so this should start on new line */
+  }
+
+/* .Form [type=submit] {
+    background-color: #04AA6D;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 20px 2px;
+    cursor: pointer;
+    float: right;
+} */
+
+#submit {
+    background-color: #04AA6D;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 20px 2px;
+    cursor: pointer;   
+    position: relative;
+    width: 30em; /* Can be in percentage also. */
+    height: auto;
+    position: relative;
+}
+
+/* Calendar */
+
+.input .calendar-container {
+    margin-top: 30px;
+    margin-left: auto; /* 自動的に左の余白を調整 */
+    margin-right: auto; /* 自動的に右の余白を調整 */
+    width: 70%; /* 70%の幅に設定 */
+    max-height: 400px;
+    overflow: auto;
+    border: 1px solid #000a;
+}
+
+.input .calendar {
+    border-collapse: collapse;
+    user-select: none;
+    border: 1px solid #000a;
+    width: 100%;
+}
+
+.input .minute {
+	height: 5px;
+	border: 1px solid #000a;
+	border-top: none;
+	border-bottom: none;
+}
+
+.input .hour {
+	height: 5px;
+	border: 1px solid #000a;
+	border-bottom: none;
+}
+
+.input .empty-cell {
+	border: 1px solid #000a;
+	border-bottom: none;
+	border-top: none;
+}
+
+.input .empty-cell-border {
+	border: 1px solid #000a;
+	border-top: 1px dashed #000;
+	border-bottom: none;
+}
+
+.input .calendar th {
+	background-color: #f2f2f2;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.input .time-col {
+	width: 80px;
+}
+.input .event {
+	background-color: #e2f7f2;
+	border-radius: 5px;
+	padding: 5px;
+	margin-bottom: 5px;
+}
+
+.input .calendar th, .input .calendar td {
+	text-align: center;
+	min-width: 66px;
+	flex-grow: 1;
+	flex-direction: row;
+	position: relative;
+}
+
+.input .event-name {
+	border: 1px solid #000a;
+	border-bottom: none;
+	background-color: #ffcccc;
+	position: relative;
+}
+
+.input .event-highlight {
+	background-color: #ffcccc; /* Light red color for highlighting */
+	border: 1px solid #000;
+	border-top:hidden;
+	word-break: break-all;
+	position: relative;
+}
+
+.input .cell-highlight {
+	background-color: #ffff00; /* Light red color for highlighting */
+}
+
+.input .calendar td div, .input .event-highlight div{
+    position: absolute;
+    bottom: -20px; /* はみ出したい高さに合わせて調整 */
+    left: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+.input .close-btn:hover {
+	color: darkred; /* ホバー時のテキスト色をダークレッドに変更 */
+}
+
+.input .close-btn {
+	z-index: 1;
+    	color: red; /* ボタンのテキスト色を赤に設定 */
+        top: 0;
+        margin-right: 0;
+        position: absolute;
+	right :0;
+	cursor: pointer;
+	border-radius: 50%;
+}
+
+/* Output */
+.output {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    margin-left: 10px;
+    display: flex; 
+    /* justify-content: space-between;  */
+    width: 100%;
+}
+
+.output * {
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.output .content {
+    padding: 20px;
+}
+
+.output .calender-container {
+    display: flex;
+    width: 80%;
+    background-color: #fefda5;
+    max-height: 70vh;
+    overflow-y: auto;
+    align-items: stretch;
+}
+
+.output #timeColumn {
+    flex: 0 0 50px;
+    background-color: #b1ffe3;
+    padding: 25px 3px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #cbcbcb;
+    height: 1467px; 
+}
+  
+.output #scheduleCalendar {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.output .day {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #cbcbcb;
+    min-width: 120px;
+    height: 1467px;
+}
+  
+.output .hour {
+    height: 5px;
+    border-top: 1px dashed #be00be;
+    position: relative;
+}
+
+.output .half-hour {
+    border-top: 1px dashed #cccccc;
+}
+
+.output .minute {
+    height: 5px;
+    position: relative;
+}
+
+.output .day .dayTitle {
+    flex: 0 0 20px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    position: relative; 
+}
+  
+.output .class-time { background-color: #a0e7ff; }
+.output .commute-time { background-color: #cecdcd; }
+.output .work-time { background-color: #ff9eef; }
+.output .google-calendar-time { background-color: #ffd18d; }
+
+.class-time { background-color: #a0e7ff; }
+.commute-time { background-color: #cecdcd; }
+ .work-time { background-color: #ff9eef; }
+.google-calendar-time { background-color: #ffd18d; }
+
+.text-columns {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 20%; /* 右側のテキストエリアの幅を設定 */
+}
+.button {
+    margin-left: 10px;
+    margin-top: 60px;
+    margin-bottom: 10px;
+    width: 150px; /* ボタンの幅 */
+    height: 20px; /* ボタンの高さ */
+    /* padding: 0px;  */
+    font-size: 16px; /* テキストのフォントサイズ */
+}
