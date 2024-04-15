@@ -1,12 +1,13 @@
 package main
 
 import (
-    "encoding/json"
-    "fmt"
-    "io"
-    "log"
-    "net/http"
-    "net/url"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
 )
 
 type PlaceSearchResponse struct {
@@ -42,7 +43,10 @@ func searchPlaces(apiKey, location, radius, keyword string) (*PlaceSearchRespons
 }
 
 func main() {
-    apiKey := "AIzaSyAOOq8iYHO0xynkfOnUfHOm00VjO72Wufk"
+    apiKey := os.Getenv("GOOGLE_MAPS_API_KEY") // 環境変数からAPIキーを読み込む
+    if apiKey == "" {
+        log.Fatal("API key not set")
+    }
     location := "35.6895,139.6917" // 東京の座標、実際にはユーザーの現在地を使用
     radius := "1500" // 単位はメートル
     keyword := "Wi-Fi cafe study"
