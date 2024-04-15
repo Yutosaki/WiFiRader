@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Places Finder</title>
+</head>
+<body>
+    <h1>Nearby Places to Study</h1>
+    <ul id="places"></ul>
+
+    <script>
+        fetch('http://localhost:8080/api/places') // バックエンドのAPIエンドポイント
+            .then(response => response.json())
+            .then(data => {
+                const placesList = document.getElementById('places');
+                data.results.forEach(place => {
+                    const li = document.createElement('li');
+                    li.textContent = `${place.name} - ${place.vicinity}`;
+                    placesList.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error fetching places:', error));
+    </script>
+</body>
+</html>
