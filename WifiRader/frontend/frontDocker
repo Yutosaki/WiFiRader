@@ -1,0 +1,23 @@
+# ベースイメージの指定
+FROM node:14
+
+# 作業ディレクトリの設定
+WORKDIR /usr/src/app
+
+# 依存関係ファイルのコピー
+COPY package*.json ./
+
+# 依存関係のインストール
+RUN npm install
+
+# アプリケーションのソースをコンテナ内にコピー
+COPY . .
+
+# アプリケーションのビルド
+RUN npm run build
+
+# Nginxをインストール
+FROM nginx:alpine
+COPY --from=0 /usr/src/app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

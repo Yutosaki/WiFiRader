@@ -1,0 +1,24 @@
+# 使用するGoのバージョンを指定
+FROM golang:1.16 as builder
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# 依存関係ファイルをコピー
+COPY go.mod go.sum ./
+
+# 依存関係をインストール
+RUN go mod download
+
+# アプリケーションのソースコードをコピー
+COPY . .
+
+# アプリケーションをビルド
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+# 最終イメージを構築
+FROM alpine:latest  
+WORKDIR /root/
+COPY --from=builder /app/main .
+EXPOSE 8080
+CMD ["./main"]
