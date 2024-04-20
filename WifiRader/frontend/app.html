@@ -2,13 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Wifi Rader</title>
+    <title>Wifi Radar</title>
     <link rel="stylesheet" href="app.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS_API_KEY&language=ja"></script>
-    <!--実際のAPIキーを入力する。.envファイルなどから環境変数として読み込みたい-->
+    <script src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS=API&language=ja"></script>
+    <!--環境変数から読み込む-->
     <script src="app.js" defer></script>
 </head>
 <body>
-    <div id="map"></div>
+    <div id="container">
+        <div id="sidebar">
+            <button id="toggleButton">⇄</button>
+            <input type="number" id="desiredAmount" placeholder="希望金額を入力" />
+            <button onclick="submitLocationAndAmount()">送信</button>
+        </div>
+        <div id="map"></div>
+    </div>
 </body>
 </html>
