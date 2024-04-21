@@ -20,7 +20,7 @@ function submitLocationAndAmount() {
             lng: position.coords.longitude
         };
 
-        fetch('/submit-location', {
+        fetch('http://localhost:8080/submit-location', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -97,4 +97,3 @@ document.addEventListener('DOMContentLoaded', function() {
     initMap(); // Assuming this function initializes the Google Map
 });
 
-window.onload = initMap;
