@@ -4,9 +4,9 @@ import (
     "encoding/json"
     "fmt"
     "io"
-    "log"
+    // "log"
     "net/http"
-    "os"
+    // "os"
     "net/url" // この行を追加
 )
 
@@ -85,23 +85,23 @@ func fetchPlaceDetails(apiKey, placeID string) (string, error) {
 }
 
 
-func main() {
-    apiKey := os.Getenv("GOOGLE_MAPS_API_KEY")
-    location := "35.6895,139.6917" 
-    radius := "1500" 
-    keyword := "Wi-Fi cafe"
+// func main() {
+//     apiKey := os.Getenv("GOOGLE_MAPS_API_KEY")
+//     location := fmt.Sprintf("%f,%f", 35.6372827, 139.6301266)
+//     radius := "1500" 
+//     keyword := "Wi-Fi cafe"
 
-    places, err := searchPlaces(apiKey, location, radius, keyword)
-    if err != nil {
-        log.Fatalf("Failed to search places: %v", err)
-    }
+//     places, err := searchPlaces(apiKey, location, radius, keyword)
+//     if err != nil {
+//         log.Fatalf("Failed to search places: %v", err)
+//     }
 
-    for _, place := range places.Results {
-        url, err := fetchPlaceDetails(apiKey, place.PlaceID)
-        if err != nil {
-            log.Printf("Failed to fetch details for place %s: %v", place.Name, err)
-            continue
-        }
-        fmt.Printf("Place: %s, URL: %s\n", place.Name, url)
-    }
-}
+//     for _, place := range places.Results {
+//         url, err := fetchPlaceDetails(apiKey, place.PlaceID)
+//         if err != nil {
+//             log.Printf("Failed to fetch details for place %s: %v", place.Name, err)
+//             continue
+//         }
+//         fmt.Printf("Place: %s, URL: %s\n", place.Name, url)
+//     }
+// }
