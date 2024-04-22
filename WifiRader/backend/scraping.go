@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
@@ -23,17 +24,17 @@ var (
 	endpoint      = os.Getenv("END_POINT")
 	subscription  = os.Getenv("ACCOUNT_KEY")
 	imageFilePath = ""
-	outputFile    = "output.txt"
+	outputFile    = ""
 )
 
 func main() {
 	c := colly.NewCollector(
 		// Zenn 以外のアクセスを許可しない
-		colly.AllowedDomains(targetDomain),
+		//colly.AllowedDomains(targetDomain),
 		// ./cache でレスポンスをキャッシュする
 		colly.CacheDir("./cache"),
 		// アクセスするページの再帰の深さを設定
-		colly.MaxDepth(2),
+		//colly.MaxDepth(2),
 		// ユーザーエージェントを設定
 		colly.UserAgent("Sample-Scraper"),
 	)
@@ -53,11 +54,14 @@ func main() {
 		imageURL := e.Attr("src")
 		makeImageFile(imageURL)
 		fmt.Println("Image URL:", imageURL)
-		ocr()
+		if !strings.HasSuffix(imageURL, "https://movecafe.com/wp/wp-content/uploads/2022/05/sns2.png") {
+			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
+			ocr()
+		}
 	})
 
 	url := fmt.Sprintf("%s/topics/go?order=latest", targetURL)
-	url = "https://zenn.dev/ekusiadadus/articles/cloud_vision_2022"
+	url = "https://cotocafe.jp/menu/"
 	c.Visit(url)
 }
 
@@ -89,9 +93,11 @@ func ocr() {
 }
 
 func makeImageFile(url string) {
+	imageFilePath = "./png/" + url[len(url)-7:] + ".png"
 	_, err := os.Stat(imageFilePath)
-	if os.IsNotExist(err) {
+	if !os.IsNotExist(err) {
 		err := os.Remove(imageFilePath)
+		fmt.Println("IsExist")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -102,13 +108,18 @@ func makeImageFile(url string) {
 	}
 	defer response.Body.Close()
 
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	file, err := os.Create(imageFilePath)
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
 
-	io.Copy(file, response.Body)
+	file.Write(body)
 }
 
 func writeTextToFile(result computervision.OcrResult) error {
@@ -118,15 +129,16 @@ func writeTextToFile(result computervision.OcrResult) error {
 	}
 	defer file.Close()
 
+	fmt.Println("\n************************************")
 	for _, region := range *result.Regions {
 		for _, line := range *region.Lines {
 			for _, word := range *line.Words {
-				var err error
 				if word.Text != nil {
-					_, err = file.WriteString(*word.Text)
-				}
-				if err != nil {
-					return err
+					_, err := file.WriteString(*word.Text)
+					fmt.Print(*word.Text)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
