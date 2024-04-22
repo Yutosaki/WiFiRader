@@ -55,9 +55,7 @@ func main() {
         AllowCredentials: true,
     })
 
-    fmt.Println("Server is running on http://localhost:8080")
-    http.ListenAndServe(":8080", mux)
-
     handler := c.Handler(mux)
+    fmt.Println("Server is running on http://localhost:8080")
     http.ListenAndServe(":8080", handler)
 }

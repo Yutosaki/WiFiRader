@@ -8,16 +8,17 @@ function submitLocationAndAmount() {
         return;
     }
 
-    const desiredAmount = document.getElementById('desiredAmount').value;
-    if (!desiredAmount) {
-        alert("金額を入力してください。");
+    const amountInput = document.getElementById('desiredAmount').value;
+    const desiredAmount = parseInt(amountInput, 10); // 文字列を整数に変換
+    if (isNaN(desiredAmount)) {  // 数値変換が正しく行われたかチェック
+        alert("金額を数値で入力してください。");
         return;
     }
 
     navigator.geolocation.getCurrentPosition(position => {
         const pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
         };
 
         fetch('http://localhost:8080/submit-location', {
