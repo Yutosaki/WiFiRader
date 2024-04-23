@@ -69,7 +69,7 @@ func fetchPlaceDetails(apiKey, placeID string) (string, error) {
 
     var details struct {
         Result struct {
-            URL string `json:"url"`
+            Website string `json:"website"`
         } `json:"result"`
         Status string `json:"status"`
     }
@@ -81,7 +81,7 @@ func fetchPlaceDetails(apiKey, placeID string) (string, error) {
         return "", fmt.Errorf("failed to get place details: %s", details.Status)
     }
 
-    return details.Result.URL, nil
+    return details.Result.Website, nil
 }
 
 
