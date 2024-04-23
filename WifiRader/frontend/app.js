@@ -17,9 +17,10 @@ function submitLocationAndAmount() {
 
     navigator.geolocation.getCurrentPosition(position => {
         const pos = {
-            Latitude: position.coords.latitude,
-            Longitude: position.coords.longitude
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
         };
+        console.log("Position data:", pos);
 
         fetch('http://localhost:8080/submit-location', {
             method: 'POST',
@@ -30,9 +31,15 @@ function submitLocationAndAmount() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Received data:', data);  // データ構造を確認
-            if (data && data.length > 0) {
-                addMarkerAndUrl(data,pos);  // 正しい関数呼び出し
+            if (data !== null) { // nullチェックを追加
+                console.log('Number of places received:', data.length);
+                console.log("Position data:", pos);
+                if (data.length > 0) {
+                    addMarkerAndUrl(data, pos);
+                } else {
+                    console.error('No valid locations received:', data);
+                    alert('カフェの情報が見つかりませんでした。');
+                }
             } else {
                 console.error('No valid locations received:', data);
                 alert('カフェの情報が見つかりませんでした。');
@@ -46,22 +53,25 @@ function submitLocationAndAmount() {
     });
 }
 
-function addMarkerAndUrl(places, centerPos) {
+function addMarkerAndUrl(places, pos) {
+    console.log('Places Data:', places);
+    const mapCenter = new google.maps.LatLng(pos.latitude, pos.longitude);
     const map = new google.maps.Map(document.getElementById('map'), {
-        center: centerPos,
+        center: mapCenter,
         zoom: 15
     });
 
+    
     places.forEach(place => {
-        const markerPos = { lat: place.Latitude, lng: place.Longitude };
+        const markerPos = new google.maps.LatLng(place.Latitude, place.Longitude);
         const marker = new google.maps.Marker({
             position: markerPos,
             map: map,
-            title: place.Name
+            title: place.name
         });
 
         const infowindow = new google.maps.InfoWindow({
-            content: `<a href="${place.URL}" target="_blank">${place.Name}</a>`
+            content: `<a href="${place.url}" target="_blank">${place.name}</a>`
         });
 
         marker.addListener('click', function() {

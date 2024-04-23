@@ -31,14 +31,14 @@ var (
 type PlaceInfo struct {
     Name      string  `json:"name"`
     URL       string  `json:"url"`
-    Latitude  float64 `json:"latitude"`
-    Longitude float64 `json:"longitude"`
+    Latitude  float64 `json:"Latitude"`
+    Longitude float64 `json:"Longitude"`
 }
 
 func init() {
 	// グローバル変数の初期化
 	apiKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	radius = "1500"
+	radius = "800" //毎回1500m検索はえぐい
 	keyword = "Wi-Fi study"
 }
 
