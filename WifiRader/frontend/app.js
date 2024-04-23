@@ -17,8 +17,8 @@ function submitLocationAndAmount() {
 
     navigator.geolocation.getCurrentPosition(position => {
         const pos = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            Latitude: position.coords.latitude,
+            Longitude: position.coords.longitude
         };
 
         fetch('http://localhost:8080/submit-location', {
@@ -26,17 +26,47 @@ function submitLocationAndAmount() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ pos, desiredAmount })
+            body: JSON.stringify({ pos: pos, desiredAmount: desiredAmount})
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
+            console.log('Received data:', data);  // データ構造を確認
+            if (data && data.length > 0) {
+                addMarkerAndUrl(data,pos);  // 正しい関数呼び出し
+            } else {
+                console.error('No valid locations received:', data);
+                alert('カフェの情報が見つかりませんでした。');
+            }
         })
         .catch((error) => {
             console.error('Error:', error);
         });
     }, () => {
         alert("現在地の取得に失敗しました。");
+    });
+}
+
+function addMarkerAndUrl(places, centerPos) {
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: centerPos,
+        zoom: 15
+    });
+
+    places.forEach(place => {
+        const markerPos = { lat: place.Latitude, lng: place.Longitude };
+        const marker = new google.maps.Marker({
+            position: markerPos,
+            map: map,
+            title: place.Name
+        });
+
+        const infowindow = new google.maps.InfoWindow({
+            content: `<a href="${place.URL}" target="_blank">${place.Name}</a>`
+        });
+
+        marker.addListener('click', function() {
+            infowindow.open(map, marker);
+        });
     });
 }
 
@@ -97,4 +127,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initMap(); // Assuming this function initializes the Google Map
 });
-
