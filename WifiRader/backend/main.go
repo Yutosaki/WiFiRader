@@ -38,7 +38,7 @@ type PlaceInfo struct {
 func init() {
 	// グローバル変数の初期化
 	apiKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	radius = "800" //毎回1500m検索はえぐい
+	radius = "700" //毎回1500m検索はえぐい
 	keyword = "Wi-Fi study"
 }
 

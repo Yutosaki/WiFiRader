@@ -55,23 +55,51 @@ function submitLocationAndAmount() {
 
 function addMarkerAndUrl(places, pos) {
     console.log('Places Data:', places);
-    const mapCenter = new google.maps.LatLng(pos.latitude, pos.longitude);
     const map = new google.maps.Map(document.getElementById('map'), {
-        center: mapCenter,
+        center: { lat: pos.latitude, lng: pos.longitude }, // 有効な緯度経度の値を渡す
         zoom: 15
     });
 
-    
+    // 現在地のマーカー
+    new google.maps.Marker({
+        position: { lat: pos.latitude, lng: pos.longitude }, // 有効な緯度経度の値を渡す
+        map: map,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: 'blue',
+            fillOpacity: 0.6,
+            strokeColor: 'white',
+            strokeWeight: 2
+        },
+        title: '現在地'
+    });
+
+    // 最も近い場所のマーカー
+    let nearestPlace = null;
+    let shortestDistance = Infinity;
+
     places.forEach(place => {
-        const markerPos = new google.maps.LatLng(place.Latitude, place.Longitude);
+        const placePos = { lat: place.Latitude, lng: place.Longitude }; // 有効な緯度経度の値を作成
+        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+            { lat: pos.latitude, lng: pos.longitude }, // 有効な緯度経度の値を渡す
+            placePos
+        );
+
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            nearestPlace = place;
+        }
+
         const marker = new google.maps.Marker({
-            position: markerPos,
+            position: placePos, // 有効な緯度経度の値を渡す
             map: map,
+            icon: nearestPlace === place ? '' : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
             title: place.name
         });
 
         const infowindow = new google.maps.InfoWindow({
-            content: `<a href="${place.url}" target="_blank">${place.name}</a>`
+            content: `<a href="${place.URL}" target="_blank">${place.name}</a>`
         });
 
         marker.addListener('click', function() {
