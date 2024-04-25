@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
                 <button id="toggleButton">⇄</button>
                 <input type="number" id="desiredAmount" placeholder="希望金額を入力" />
                 <button onclick="submitLocationAndAmount()">送信</button>
+                <iframe id="placeIframe"></iframe>
             </div>
             <div id="map"></div>
         </div>

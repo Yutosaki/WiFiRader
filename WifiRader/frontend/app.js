@@ -90,7 +90,10 @@ function addMarkerAndUrl(places, pos) {
             shortestDistance = distance;
             nearestPlace = place;
         }
+    });
 
+    places.forEach(place => {
+        const placePos = { lat: place.Latitude, lng: place.Longitude }; // 有効な緯度経度の値を作成
         const marker = new google.maps.Marker({
             position: placePos, // 有効な緯度経度の値を渡す
             map: map,
@@ -99,12 +102,18 @@ function addMarkerAndUrl(places, pos) {
         });
 
         const infowindow = new google.maps.InfoWindow({
-            content: `<a href="${place.URL}" target="_blank">${place.name}</a>`
+            content: `<a href="${place.url}" target="_blank">${place.name}</a>`
         });
 
         marker.addListener('click', function() {
             infowindow.open(map, marker);
         });
+
+        // サイドバーに最も近い場所の情報を表示
+        if (nearestPlace === place) {
+            const placeIframe = document.getElementById('placeIframe');
+            placeIframe.src = place.url;
+        }
     });
 }
 
