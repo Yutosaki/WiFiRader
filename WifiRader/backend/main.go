@@ -21,7 +21,6 @@ type LocationData struct {
 
 var (
     data LocationData
-    // locMutex        sync.Mutex
     apiKey string
     location string
     radius string
@@ -35,15 +34,14 @@ type PlaceInfo struct {
     Longitude float64 `json:"Longitude"`
 }
 
+//自動で読み込み
 func init() {
-	// グローバル変数の初期化
 	apiKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	radius = "1800" //毎回1500m検索はえぐい
+	radius = "1800"
 	keyword = "Wi-Fi study"
 }
 
 func submitLocationHandler(w http.ResponseWriter, r *http.Request) {
-    // コンテンツタイプを最初に設定
     w.Header().Set("Content-Type", "application/json")
 
     if r.Method != "POST" {
@@ -51,6 +49,7 @@ func submitLocationHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    // レスポンスボディの読み込み
     body, err := io.ReadAll(r.Body)
     if err != nil {
         log.Printf("Error reading body: %v", err)
@@ -58,6 +57,7 @@ func submitLocationHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    //デコード
     if err := json.Unmarshal(body, &data); err != nil {
         log.Printf("Error decoding JSON: %v", err)
         http.Error(w, fmt.Sprintf(`{"error":"%v"}`, err), http.StatusBadRequest)
@@ -75,6 +75,7 @@ func submitLocationHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    //構造体配列で情報を扱う
     var response []PlaceInfo
 	for _, place := range places.Results {
 		url, err := fetchPlaceDetails(apiKey, place.PlaceID)
@@ -99,7 +100,7 @@ func main() {
     mux.HandleFunc("/submit-location", submitLocationHandler)
 
     c := cors.New(cors.Options{
-        AllowedOrigins: []string{"http://localhost:3000"}, // Node.jsサーバーのポートを指定
+        AllowedOrigins: []string{"http://localhost:3000"},
         AllowedMethods: []string{"POST"},
         AllowedHeaders: []string{"Content-Type"},
         AllowCredentials: true,

@@ -4,10 +4,8 @@ import (
     "encoding/json"
     "fmt"
     "io"
-    // "log"
     "net/http"
-    // "os"
-    "net/url" // この行を追加
+    "net/url"
 )
 
 type PlaceSearchResponse struct {
@@ -29,17 +27,14 @@ func searchPlaces(apiKey, location, radius, keyword string) (*PlaceSearchRespons
     // URLエンコードを使用してキーワードをエンコード
     encodedKeyword := url.QueryEscape(keyword)
 
-    // APIリクエストURLの構築
     requestURL := fmt.Sprintf("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s&radius=%s&keyword=%s&type=cafe&key=%s", location, radius, encodedKeyword, apiKey)
 
-    // HTTP GETリクエストの送信
     resp, err := http.Get(requestURL)
     if err != nil {
         return nil, err
     }
     defer resp.Body.Close()
 
-    // レスポンスボディの読み込み
     body, err := io.ReadAll(resp.Body)
     if err != nil {
         return nil, err
@@ -83,25 +78,3 @@ func fetchPlaceDetails(apiKey, placeID string) (string, error) {
 
     return details.Result.Website, nil
 }
-
-
-// func main() {
-//     apiKey := os.Getenv("GOOGLE_MAPS_API_KEY")
-//     location := fmt.Sprintf("%f,%f", 35.6372827, 139.6301266)
-//     radius := "1500" 
-//     keyword := "Wi-Fi cafe"
-
-//     places, err := searchPlaces(apiKey, location, radius, keyword)
-//     if err != nil {
-//         log.Fatalf("Failed to search places: %v", err)
-//     }
-
-//     for _, place := range places.Results {
-//         url, err := fetchPlaceDetails(apiKey, place.PlaceID)
-//         if err != nil {
-//             log.Printf("Failed to fetch details for place %s: %v", place.Name, err)
-//             continue
-//         }
-//         fmt.Printf("Place: %s, URL: %s\n", place.Name, url)
-//     }
-// }

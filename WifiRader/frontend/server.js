@@ -8,7 +8,7 @@ const cors = require('cors');
 app.use(express.static('../frontend'));
 app.use(cors());
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.send(`
     <!DOCTYPE html>
     <html lang="ja">

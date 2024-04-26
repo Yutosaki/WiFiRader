@@ -2,6 +2,32 @@ document.addEventListener('DOMContentLoaded', function() {
     initMap();
 });
 
+function initMap() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: pos,
+                zoom: 15
+            });
+
+            new google.maps.Marker({
+                position: pos,
+                map: map,
+                title: '現在地'
+            });
+        }, function() {
+            handleLocationError(true, map, map.getCenter());
+        });
+    } else {
+        handleLocationError(false, null, { lat: -34.397, lng: 150.644 });
+    }
+}
+
 function submitLocationAndAmount() {
     if (!navigator.geolocation) {
         console.error("Geolocation is not supported by your browser.");
@@ -56,13 +82,13 @@ function submitLocationAndAmount() {
 function addMarkerAndUrl(places, pos) {
     console.log('Places Data:', places);
     const map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: pos.latitude, lng: pos.longitude }, // 有効な緯度経度の値を渡す
+        center: { lat: pos.latitude, lng: pos.longitude },
         zoom: 15
     });
 
     // 現在地のマーカー
     new google.maps.Marker({
-        position: { lat: pos.latitude, lng: pos.longitude }, // 有効な緯度経度の値を渡す
+        position: { lat: pos.latitude, lng: pos.longitude },
         map: map,
         icon: {
             path: google.maps.SymbolPath.CIRCLE,
@@ -75,14 +101,13 @@ function addMarkerAndUrl(places, pos) {
         title: '現在地'
     });
 
-    // 最も近い場所のマーカー
     let nearestPlace = null;
     let shortestDistance = Infinity;
 
     places.forEach(place => {
-        const placePos = { lat: place.Latitude, lng: place.Longitude }; // 有効な緯度経度の値を作成
+        const placePos = { lat: place.Latitude, lng: place.Longitude };
         const distance = google.maps.geometry.spherical.computeDistanceBetween(
-            { lat: pos.latitude, lng: pos.longitude }, // 有効な緯度経度の値を渡す
+            { lat: pos.latitude, lng: pos.longitude },
             placePos
         );
 
@@ -93,9 +118,9 @@ function addMarkerAndUrl(places, pos) {
     });
 
     places.forEach(place => {
-        const placePos = { lat: place.Latitude, lng: place.Longitude }; // 有効な緯度経度の値を作成
+        const placePos = { lat: place.Latitude, lng: place.Longitude };
         const marker = new google.maps.Marker({
-            position: placePos, // 有効な緯度経度の値を渡す
+            position: placePos,
             map: map,
             icon: nearestPlace === place ? '' : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
             title: place.name
@@ -115,32 +140,6 @@ function addMarkerAndUrl(places, pos) {
             placeIframe.src = place.url;
         }
     });
-}
-
-function initMap() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-
-            var map = new google.maps.Map(document.getElementById('map'), {
-                center: pos,
-                zoom: 15
-            });
-
-            new google.maps.Marker({
-                position: pos,
-                map: map,
-                title: '現在地'
-            });
-        }, function() {
-            handleLocationError(true, map, map.getCenter());
-        });
-    } else {
-        handleLocationError(false, null, { lat: -34.397, lng: 150.644 });
-    }
 }
 
 function handleLocationError(browserHasGeolocation, map, pos) {
@@ -172,5 +171,5 @@ document.addEventListener('DOMContentLoaded', function() {
         isSidebarOpen = !isSidebarOpen;
     });
 
-    initMap(); // Assuming this function initializes the Google Map
+    initMap();//現在地の読み込み
 });
