@@ -36,9 +36,6 @@ func searchPlaces(apiKey, location, radius, keyword string) (*PlaceSearchRespons
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
