@@ -5,15 +5,17 @@ services:
       context: ./backend
       dockerfile: backDocker
     ports:
-      - "8080:8080"
-    restart: always
-
+      - 8080:8080
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
   frontend:
     build:
       context: ./frontend
       dockerfile: frontDocker
     ports:
-      - "80:80"
-    restart: always
-    depends_on:
-      - backend
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules

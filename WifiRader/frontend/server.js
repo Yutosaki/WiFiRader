@@ -5,7 +5,7 @@ const port = 3000;
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
 
 const cors = require('cors');
-app.use(express.static('../frontend'));
+app.use(express.static('.'));
 app.use(cors());
 
 app.get('/', (_, res) => {

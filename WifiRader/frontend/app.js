@@ -104,8 +104,8 @@ function addMarkerAndUrl(places, pos) {
     let nearestPlace = null;
     let shortestDistance = Infinity;
 
+    const placePos = { lat: place.Latitude, lng: place.Longitude };
     places.forEach(place => {
-        const placePos = { lat: place.Latitude, lng: place.Longitude };
         const distance = google.maps.geometry.spherical.computeDistanceBetween(
             { lat: pos.latitude, lng: pos.longitude },
             placePos
@@ -118,7 +118,6 @@ function addMarkerAndUrl(places, pos) {
     });
 
     places.forEach(place => {
-        const placePos = { lat: place.Latitude, lng: place.Longitude };
         const marker = new google.maps.Marker({
             position: placePos,
             map: map,
@@ -136,8 +135,9 @@ function addMarkerAndUrl(places, pos) {
 
         // サイドバーに最も近い場所の情報を表示
         if (nearestPlace === place) {
+            console.log('Nearest place:', place);
             const placeIframe = document.getElementById('placeIframe');
-            placeIframe.src = place.url;
+            placeIframe.src = place.url ? place.url : "URLを取得できませんでした"; 
         }
     });
 }

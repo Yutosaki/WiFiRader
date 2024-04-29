@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
-	"time"
+	// "strings"
+	// "time"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/gocolly/colly/v2"
+	// "github.com/gocolly/colly/v2"
 )
 
 const (
@@ -27,43 +27,43 @@ var (
 	outputFile    = ""
 )
 
-func main() {
-	c := colly.NewCollector(
-		// Zenn 以外のアクセスを許可しない
-		//colly.AllowedDomains(targetDomain),
-		// ./cache でレスポンスをキャッシュする
-		colly.CacheDir("./cache"),
-		// アクセスするページの再帰の深さを設定
-		//colly.MaxDepth(2),
-		// ユーザーエージェントを設定
-		colly.UserAgent("Sample-Scraper"),
-	)
+// func main() {
+// 	c := colly.NewCollector(
+// 		// Zenn 以外のアクセスを許可しない
+// 		//colly.AllowedDomains(targetDomain),
+// 		// ./cache でレスポンスをキャッシュする
+// 		colly.CacheDir("./cache"),
+// 		// アクセスするページの再帰の深さを設定
+// 		//colly.MaxDepth(2),
+// 		// ユーザーエージェントを設定
+// 		colly.UserAgent("Sample-Scraper"),
+// 	)
 
-	// リクエスト間で1~2秒の時間を空ける
-	c.Limit(&colly.LimitRule{
-		DomainGlob:  targetDomain,
-		Delay:       time.Second,
-		RandomDelay: time.Second,
-	})
+// 	// リクエスト間で1~2秒の時間を空ける
+// 	c.Limit(&colly.LimitRule{
+// 		DomainGlob:  targetDomain,
+// 		Delay:       time.Second,
+// 		RandomDelay: time.Second,
+// 	})
 
-	// エラー発生時に実行される関数
-	c.OnError(func(r *colly.Response, err error) {
-		log.Fatalln("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
-	})
-	c.OnHTML("img", func(e *colly.HTMLElement) {
-		imageURL := e.Attr("src")
-		makeImageFile(imageURL)
-		fmt.Println("Image URL:", imageURL)
-		if !strings.HasSuffix(imageURL, "https://movecafe.com/wp/wp-content/uploads/2022/05/sns2.png") {
-			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
-			ocr()
-		}
-	})
+// 	// エラー発生時に実行される関数
+// 	c.OnError(func(r *colly.Response, err error) {
+// 		log.Fatalln("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+// 	})
+// 	c.OnHTML("img", func(e *colly.HTMLElement) {
+// 		imageURL := e.Attr("src")
+// 		makeImageFile(imageURL)
+// 		fmt.Println("Image URL:", imageURL)
+// 		if !strings.HasSuffix(imageURL, "https://movecafe.com/wp/wp-content/uploads/2022/05/sns2.png") {
+// 			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
+// 			ocr()
+// 		}
+// 	})
 
-	url := fmt.Sprintf("%s/topics/go?order=latest", targetURL)
-	url = "https://cotocafe.jp/menu/"
-	c.Visit(url)
-}
+// 	url := fmt.Sprintf("%s/topics/go?order=latest", targetURL)
+// 	url = "https://cotocafe.jp/menu/"
+// 	c.Visit(url)
+// }
 
 func ocr() {
 	// Create a new Computer Vision client

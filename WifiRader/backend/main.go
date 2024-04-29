@@ -37,7 +37,7 @@ type PlaceInfo struct {
 //自動で読み込み
 func init() {
 	apiKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	radius = "1800"
+	radius = "1500"
 	keyword = "Wi-Fi study"
 }
 
@@ -66,7 +66,7 @@ func submitLocationHandler(w http.ResponseWriter, r *http.Request) {
 
     log.Printf("Received location: %v, %v and desired amount: %d", data.Pos.Latitude, data.Pos.Longitude, data.DesiredAmount)
 
-    location := fmt.Sprintf("%f,%f", data.Pos.Latitude, data.Pos.Longitude)
+    location = fmt.Sprintf("%f,%f", data.Pos.Latitude, data.Pos.Longitude)
     places, err := searchPlaces(apiKey, location, radius, keyword)
     if err != nil {
         errMsg := fmt.Sprintf("Failed to search places: %v", err)
@@ -86,7 +86,7 @@ func submitLocationHandler(w http.ResponseWriter, r *http.Request) {
 		response = append(response, PlaceInfo{Name: place.Name, URL: url, Latitude: place.Geometry.Location.Lat, Longitude: place.Geometry.Location.Lng})
         fmt.Printf("Place: %s, URL: %s\n", place.Name, url)
 	}
-
+    
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Error encoding JSON: %v", err)
 		http.Error(w, `{"error":"Error encoding JSON"}`, http.StatusInternalServerError)
