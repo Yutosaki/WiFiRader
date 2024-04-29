@@ -83,7 +83,7 @@ function addMarkerAndUrl(places, pos) {
     console.log('Places Data:', places);
     const map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: pos.latitude, lng: pos.longitude },
-        zoom: 15
+        zoom: 10
     });
 
     // 現在地のマーカー
@@ -104,8 +104,11 @@ function addMarkerAndUrl(places, pos) {
     let nearestPlace = null;
     let shortestDistance = Infinity;
 
-    const placePos = { lat: place.Latitude, lng: place.Longitude };
     places.forEach(place => {
+        if (!place.url) {
+            return;
+        }
+        const placePos = { lat: place.Latitude, lng: place.Longitude };
         const distance = google.maps.geometry.spherical.computeDistanceBetween(
             { lat: pos.latitude, lng: pos.longitude },
             placePos
@@ -117,7 +120,28 @@ function addMarkerAndUrl(places, pos) {
         }
     });
 
+     var directionsService = new google.maps.DirectionsService();
+     var directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: true  // マーカーを非表示にする
+    });
+     directionsRenderer.setMap(map);
+ 
+     var request = {
+         origin: new google.maps.LatLng(pos.latitude, pos.longitude),
+         destination: new google.maps.LatLng(nearestPlace.Latitude, nearestPlace.Longitude),
+         travelMode: 'WALKING'
+     };
+     directionsService.route(request, function(result, status) {
+         if (status == 'OK') {
+             directionsRenderer.setDirections(result);
+         }
+     }); 
+
     places.forEach(place => {
+        if (!place.url) {
+            return;
+        }
+        const placePos = { lat: place.Latitude, lng: place.Longitude };
         const marker = new google.maps.Marker({
             position: placePos,
             map: map,

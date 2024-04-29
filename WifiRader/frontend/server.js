@@ -16,7 +16,7 @@ app.get('/', (_, res) => {
         <meta charset="UTF-8">
         <title>Wifi Radar</title>
         <link rel="stylesheet" href="/app.css">
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&language=ja&libraries=geometry"></script>
+        <script async src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&language=ja&libraries=geometry"></script>
         <script src="/app.js" defer></script>
     </head>
     <body>
