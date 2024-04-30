@@ -27,7 +27,22 @@ var (
 	outputFile    = ""
 )
 
+var price = 0
+
 func main() {
+	os.Mkdir("png",0777)
+	os.Mkdir("output",0777)
+	url := "http://nericafe.com/"
+	url = "https://cotocafe.jp/"
+	scraping(url)
+	if price != 0 {
+		fmt.Println(price)
+	}
+	fmt.Println("if error occured when remove png dir:",os.RemoveAll("png"))
+	fmt.Println("if error occured when remove output dir:",os.RemoveAll("output"))
+}
+
+func scraping(url string) {
 	c := colly.NewCollector(
 		// Zenn 以外のアクセスを許可しない
 		//colly.AllowedDomains(targetDomain),
@@ -50,18 +65,35 @@ func main() {
 	c.OnError(func(r *colly.Response, err error) {
 		log.Fatalln("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
+
+
+	c.OnHTML("body", func(e *colly.HTMLElement) {
+		fmt.Println(e)
+	})
 	c.OnHTML("img", func(e *colly.HTMLElement) {
 		imageURL := e.Attr("src")
-		makeImageFile(imageURL)
-		fmt.Println("Image URL:", imageURL)
-		if !strings.HasSuffix(imageURL, "https://movecafe.com/wp/wp-content/uploads/2022/05/sns2.png") {
-			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
-			ocr()
+		fmt.Println("\n************************************")
+		fmt.Println(imageURL)
+		if imageURL[len(imageURL)-4:]==".png" || imageURL[len(imageURL)-4:]==".jpg"{
+			makeImageFile(imageURL)
+			fmt.Println("Image URL:", imageURL)
+			if !strings.Contains(imageURL, "placeholder") {
+				outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
+				ocr()
+			}
+		}else{
+			fmt.Println("not png", imageURL)
 		}
 	})
 
-	url := fmt.Sprintf("%s/topics/go?order=latest", targetURL)
-	url = "https://cotocafe.jp/menu/"
+	c.OnHTML("a",func(e *colly.HTMLElement) {
+		menuURL := e.Attr("href")
+		if strings.Contains(menuURL, "menu") && menuURL != url{
+			fmt.Println("\n\n",menuURL,"\n")
+			scraping(menuURL)
+		}
+	})
+
 	c.Visit(url)
 }
 
@@ -76,6 +108,18 @@ func ocr() {
 		log.Fatalf("Error opening image file: %v", err)
 	}
 	defer file.Close()
+
+	fileinfo, staterr := file.Stat()
+
+    if staterr != nil {
+        fmt.Println("staterr",staterr)
+        return
+    }
+    	fmt.Println("filesize:",fileinfo.Size())
+    	if fileinfo.Size() < 100000 {
+		fmt.Println("filesize is so small")
+		return
+	}
 
 	// Perform OCR on the image
 	ctx := context.Background()
@@ -129,7 +173,6 @@ func writeTextToFile(result computervision.OcrResult) error {
 	}
 	defer file.Close()
 
-	fmt.Println("\n************************************")
 	for _, region := range *result.Regions {
 		for _, line := range *region.Lines {
 			for _, word := range *line.Words {
