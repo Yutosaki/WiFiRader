@@ -9,7 +9,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
 	"github.com/Azure/go-autorest/autorest"
@@ -28,11 +27,11 @@ var (
 	subscription             = os.Getenv("ACCOUNT_KEY")
 	geminiapikey             = os.Getenv("GEMINI_API_KEY")
 	genaiTrue     genai.Text = "True"
-	isTrue	= false
-	visited = make(map[string]bool)
+	isTrue                   = false
+	visited                  = make(map[string]bool)
 	imageFilePath            = ""
 	outputFile               = ""
-	response []string
+	response      []string
 )
 
 var maxprice = 49
@@ -46,7 +45,7 @@ func main() {
 	}
 	var i = 0
 	for i < len(url) {
-		isTrue=false
+		isTrue = false
 		if visited[url[i]] || scraping(url[i]) {
 			visited[url[i]] = true
 			response = append(response, url[i])
@@ -70,12 +69,12 @@ func scraping(url string) bool {
 		colly.UserAgent("Sample-Scraper"),
 	)
 
-	// リクエスト間で1~2秒の時間を空ける
-	c.Limit(&colly.LimitRule{
-		DomainGlob:  targetDomain,
-		Delay:       time.Second,
-		RandomDelay: time.Second,
-	})
+	// 	// リクエスト間で1~2秒の時間を空ける
+	// 	c.Limit(&colly.LimitRule{
+	// 		DomainGlob:  targetDomain,
+	// 		Delay:       time.Second,
+	// 		RandomDelay: time.Second,
+	// 	})
 
 	// エラー発生時に実行される関数
 	c.OnError(func(r *colly.Response, err error) {
@@ -110,7 +109,7 @@ func scraping(url string) bool {
 	})
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		menuURL := e.Request.AbsoluteURL(e.Attr("href"))
-		if strings.Contains(menuURL, "menu") && menuURL != url && !visited[url]{
+		if strings.Contains(menuURL, "menu") && menuURL != url && !visited[url] {
 			fmt.Println("\n\n", menuURL, "\n")
 			if scraping(menuURL) {
 				isTrue = true
@@ -163,7 +162,7 @@ func ocr() bool {
 		//log.Fatalf("Error writing text to file: %v", err)
 		fmt.Println("Error writing text to file: %v", err)
 		return false
-	}else{
+	} else {
 		return ok
 	}
 }
@@ -198,10 +197,10 @@ func makeImageFile(url string) {
 	file.Write(body)
 }
 
-func writeTextToFile(result computervision.OcrResult) (error,bool){
+func writeTextToFile(result computervision.OcrResult) (error, bool) {
 	file, err := os.Create(outputFile)
 	if err != nil {
-		return err,false
+		return err, false
 	}
 	defer file.Close()
 
@@ -214,13 +213,13 @@ func writeTextToFile(result computervision.OcrResult) (error,bool){
 					//fmt.Print(*word.Text)
 					prompt = append(prompt, genai.Text(*word.Text))
 					if err != nil {
-						return err,false
+						return err, false
 					}
 				}
 			}
 		}
 	}
-	return nil,geminiChat(prompt)
+	return nil, geminiChat(prompt)
 }
 
 func geminiChat(prompt []genai.Part) bool {

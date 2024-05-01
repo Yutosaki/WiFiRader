@@ -5,10 +5,10 @@ const port = 3000;
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
 
 const cors = require('cors');
-app.use(express.static('../frontend'));
+app.use(express.static('.'));
 app.use(cors());
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.send(`
     <!DOCTYPE html>
     <html lang="ja">
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
         <meta charset="UTF-8">
         <title>Wifi Radar</title>
         <link rel="stylesheet" href="/app.css">
-        <script src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&language=ja"></script>
+        <script async src="https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&language=ja&libraries=geometry"></script>
         <script src="/app.js" defer></script>
     </head>
     <body>
@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
                 <button id="toggleButton">⇄</button>
                 <input type="number" id="desiredAmount" placeholder="希望金額を入力" />
                 <button onclick="submitLocationAndAmount()">送信</button>
+                <iframe id="placeIframe"></iframe>
             </div>
             <div id="map"></div>
         </div>

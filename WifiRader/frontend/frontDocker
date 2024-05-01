@@ -1,23 +1,17 @@
-# ベースイメージの指定
-FROM node:14
+# Node.jsをベースイメージとして使用
+FROM node as builder
 
-# 作業ディレクトリの設定
-WORKDIR /usr/src/app
+# 作業ディレクトリを設定
+WORKDIR /app
 
-# 依存関係ファイルのコピー
+# package.json と package-lock.json をコピー
 COPY package*.json ./
 
-# 依存関係のインストール
+# 依存関係をインストール
 RUN npm install
 
-# アプリケーションのソースをコンテナ内にコピー
+# アプリケーションのソースコードをコピー
 COPY . .
 
-# アプリケーションのビルド
-RUN npm run build
-
-# Nginxをインストール
-FROM nginx:alpine
-COPY --from=0 /usr/src/app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# アプリケーションを起動
+CMD ["node", "server.js"]
