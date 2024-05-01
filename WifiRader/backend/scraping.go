@@ -29,8 +29,10 @@ var (
 	geminiapikey             = os.Getenv("GEMINI_API_KEY")
 	genaiTrue     genai.Text = "True"
 	isTrue	= false
+	visited = make(map[string]bool)
 	imageFilePath            = ""
 	outputFile               = ""
+	response []string
 )
 
 var maxprice = 49
@@ -45,10 +47,13 @@ func main() {
 	var i = 0
 	for i < len(url) {
 		isTrue=false
-		if scraping(url[i]) {
-			fmt.Println(url[i])
+		if visited[url[i]] || scraping(url[i]) {
+			visited[url[i]] = true
+			response = append(response, url[i])
 		}
+		i++
 	}
+	fmt.Println(response)
 	fmt.Println("if error occured when remove png dir:", os.RemoveAll("png"))
 	fmt.Println("if error occured when remove output dir:", os.RemoveAll("output"))
 }
@@ -89,8 +94,9 @@ func scraping(url string) bool {
 	c.OnHTML("img", func(e *colly.HTMLElement) {
 		imageURL := e.Attr("src")
 		fmt.Println("\n************************************")
-		//if imageURL[len(imageURL)-4:] == ".png" {
-		makeImageFile(imageURL)
+		if imageURL[4:] == "http" {
+			makeImageFile(imageURL)
+		}
 		fmt.Println("Image URL:", imageURL)
 		if !strings.Contains(imageURL, "placeholder") {
 			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
@@ -102,15 +108,15 @@ func scraping(url string) bool {
 		//	fmt.Println("not png", imageURL)
 		//}
 	})
-
-	c.OnHTML("a", func(e *colly.HTMLElement) {
-		menuURL := e.Attr("href")
-		if strings.Contains(menuURL, "menu") && menuURL != url {
+	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+		menuURL := e.Request.AbsoluteURL(e.Attr("href"))
+		if strings.Contains(menuURL, "menu") && menuURL != url && !visited[url]{
 			fmt.Println("\n\n", menuURL, "\n")
 			if scraping(menuURL) {
 				isTrue = true
 			}
 		}
+		visited[url] = true
 	})
 
 	c.Visit(url)
@@ -172,13 +178,13 @@ func makeImageFile(url string) {
 			log.Fatal(err)
 		}
 	}
-	response, err := http.Get(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatalf("Error get url", err)
 	}
-	defer response.Body.Close()
+	defer resp.Body.Close()
 
-	body, err := io.ReadAll(response.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
