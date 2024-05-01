@@ -9,10 +9,13 @@ import (
 	"os"
 	"strings"
 	"time"
+	"strconv"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/gocolly/colly/v2"
+	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -23,23 +26,26 @@ const (
 var (
 	endpoint      = os.Getenv("END_POINT")
 	subscription  = os.Getenv("ACCOUNT_KEY")
+	geminiapikey  = os.Getenv("GEMINI_API_KEY")
 	imageFilePath = ""
 	outputFile    = ""
 )
 
-var price = 0
+var maxprice = 49
 
 func main() {
-	os.Mkdir("png",0777)
-	os.Mkdir("output",0777)
+	os.Mkdir("png", 0777)
+	os.Mkdir("output", 0777)
 	url := "http://nericafe.com/"
-	url = "https://cotocafe.jp/"
+	url = "https://www.tullys.co.jp/menu/drink/coffee/coldbrewcoffee24.html"
+	url = "https://cotocafe.jp/menu/"
+	//url = "https://bowlscafe.com/menu"
 	scraping(url)
-	if price != 0 {
-		fmt.Println(price)
+	if maxprice != 0 {
+		fmt.Println(maxprice)
 	}
-	fmt.Println("if error occured when remove png dir:",os.RemoveAll("png"))
-	fmt.Println("if error occured when remove output dir:",os.RemoveAll("output"))
+	fmt.Println("if error occured when remove png dir:", os.RemoveAll("png"))
+	fmt.Println("if error occured when remove output dir:", os.RemoveAll("output"))
 }
 
 func scraping(url string) {
@@ -66,30 +72,32 @@ func scraping(url string) {
 		log.Fatalln("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
-
 	c.OnHTML("body", func(e *colly.HTMLElement) {
-		fmt.Println(e)
+		prompt := []genai.Part{
+			genai.Text(strings.Join(strings.Fields(e.Text), " ")),
+		}
+		fmt.Println(strings.Join(strings.Fields(e.Text), " "))
+		geminiChat(prompt)
 	})
 	c.OnHTML("img", func(e *colly.HTMLElement) {
 		imageURL := e.Attr("src")
 		fmt.Println("\n************************************")
-		fmt.Println(imageURL)
-		if imageURL[len(imageURL)-4:]==".png" || imageURL[len(imageURL)-4:]==".jpg"{
+		//if imageURL[len(imageURL)-4:] == ".png" {
 			makeImageFile(imageURL)
 			fmt.Println("Image URL:", imageURL)
 			if !strings.Contains(imageURL, "placeholder") {
 				outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
 				ocr()
 			}
-		}else{
-			fmt.Println("not png", imageURL)
-		}
+		//} else {
+		//	fmt.Println("not png", imageURL)
+		//}
 	})
 
-	c.OnHTML("a",func(e *colly.HTMLElement) {
+	c.OnHTML("a", func(e *colly.HTMLElement) {
 		menuURL := e.Attr("href")
-		if strings.Contains(menuURL, "menu") && menuURL != url{
-			fmt.Println("\n\n",menuURL,"\n")
+		if strings.Contains(menuURL, "menu") && menuURL != url {
+			fmt.Println("\n\n", menuURL, "\n")
 			scraping(menuURL)
 		}
 	})
@@ -98,7 +106,7 @@ func scraping(url string) {
 }
 
 func ocr() {
-	// Create a new Computer Vision client
+	// Create a new Computer Vision clien
 	client := computervision.New(endpoint)
 	client.Authorizer = autorest.NewCognitiveServicesAuthorizer(subscription)
 
@@ -111,12 +119,12 @@ func ocr() {
 
 	fileinfo, staterr := file.Stat()
 
-    if staterr != nil {
-        fmt.Println("staterr",staterr)
-        return
-    }
-    	fmt.Println("filesize:",fileinfo.Size())
-    	if fileinfo.Size() < 100000 {
+	if staterr != nil {
+		fmt.Println("staterr", staterr)
+		return
+	}
+	fmt.Println("filesize:", fileinfo.Size())
+	if fileinfo.Size() < 100000 {
 		fmt.Println("filesize is so small")
 		return
 	}
@@ -148,7 +156,7 @@ func makeImageFile(url string) {
 	}
 	response, err := http.Get(url)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error get url", err)
 	}
 	defer response.Body.Close()
 
@@ -173,12 +181,14 @@ func writeTextToFile(result computervision.OcrResult) error {
 	}
 	defer file.Close()
 
+	var prompt []genai.Part
 	for _, region := range *result.Regions {
 		for _, line := range *region.Lines {
 			for _, word := range *line.Words {
 				if word.Text != nil {
 					_, err := file.WriteString(*word.Text)
 					fmt.Print(*word.Text)
+					prompt = append(prompt, genai.Text(*word.Text))
 					if err != nil {
 						return err
 					}
@@ -186,6 +196,36 @@ func writeTextToFile(result computervision.OcrResult) error {
 			}
 		}
 	}
+	geminiChat(prompt)
 
 	return nil
+}
+
+func geminiChat(prompt []genai.Part) {
+	fmt.Println("\n\n\n")
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, option.WithAPIKey(geminiapikey))
+	if err != nil {
+		log.Fatalf("Error generate new client:%v", err)
+	}
+	model := client.GenerativeModel("gemini-pro")
+	prompt = append(prompt, genai.Text("What is the lowest price. Answer true or false whether it is less than"))
+	prompt = append(prompt, genai.Text(strconv.Itoa(maxprice)))
+	fmt.Println("\n\n",prompt)
+	resp, err := model.GenerateContent(ctx, prompt...)
+	if err != nil {
+		log.Fatalf("Error generate content:%v", err)
+	}
+	printResponse(resp)
+}
+func printResponse(resp *genai.GenerateContentResponse) {
+	for _, candidate := range resp.Candidates {
+		// Content が nil でないことを確認
+		if candidate.Content != nil {
+			// Parts に含まれる各テキスト部分をループで処理
+			for _, part := range candidate.Content.Parts {
+				fmt.Println(part)
+			}
+		}
+	}
 }
