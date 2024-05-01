@@ -36,19 +36,16 @@ var (
 
 var maxprice = 49
 
-func main() {
+func checkmenu(price int, resp []PlaceInfo)(response []PlaceInfo){
 	os.Mkdir("png", 0777)
 	os.Mkdir("output", 0777)
-	url := []string{"http://nericafe.com/",
-		"https://www.tullys.co.jp/menu/drink/coffee/coldbrewcoffee24.html",
-		"https://cotocafe.jp/menu/", "https://bowlscafe.com/menu",
-	}
 	var i = 0
-	for i < len(url) {
+	for i < len(resp) {
 		isTrue = false
-		if visited[url[i]] || scraping(url[i]) {
-			visited[url[i]] = true
-			response = append(response, url[i])
+		url := resp.URL
+		if visited[url] || scraping(url) {
+			visited[url] = true
+			response = append(response, url)
 		}
 		i++
 	}
