@@ -7,9 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
 	"github.com/Azure/go-autorest/autorest"
@@ -27,6 +28,7 @@ var (
 	endpoint      = os.Getenv("END_POINT")
 	subscription  = os.Getenv("ACCOUNT_KEY")
 	geminiapikey  = os.Getenv("GEMINI_API_KEY")
+	genaiTrue genai.Text = "True"
 	imageFilePath = ""
 	outputFile    = ""
 )
@@ -83,12 +85,12 @@ func scraping(url string) {
 		imageURL := e.Attr("src")
 		fmt.Println("\n************************************")
 		//if imageURL[len(imageURL)-4:] == ".png" {
-			makeImageFile(imageURL)
-			fmt.Println("Image URL:", imageURL)
-			if !strings.Contains(imageURL, "placeholder") {
-				outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
-				ocr()
-			}
+		makeImageFile(imageURL)
+		fmt.Println("Image URL:", imageURL)
+		if !strings.Contains(imageURL, "placeholder") {
+			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
+			ocr()
+		}
 		//} else {
 		//	fmt.Println("not png", imageURL)
 		//}
@@ -140,8 +142,6 @@ func ocr() {
 	if err := writeTextToFile(result); err != nil {
 		log.Fatalf("Error writing text to file: %v", err)
 	}
-
-	fmt.Println("Texts are written to output.txt")
 }
 
 func makeImageFile(url string) {
@@ -187,7 +187,7 @@ func writeTextToFile(result computervision.OcrResult) error {
 			for _, word := range *line.Words {
 				if word.Text != nil {
 					_, err := file.WriteString(*word.Text)
-					fmt.Print(*word.Text)
+					//fmt.Print(*word.Text)
 					prompt = append(prompt, genai.Text(*word.Text))
 					if err != nil {
 						return err
@@ -202,7 +202,6 @@ func writeTextToFile(result computervision.OcrResult) error {
 }
 
 func geminiChat(prompt []genai.Part) {
-	fmt.Println("\n\n\n")
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(geminiapikey))
 	if err != nil {
@@ -211,7 +210,7 @@ func geminiChat(prompt []genai.Part) {
 	model := client.GenerativeModel("gemini-pro")
 	prompt = append(prompt, genai.Text("What is the lowest price. Answer true or false whether it is less than"))
 	prompt = append(prompt, genai.Text(strconv.Itoa(maxprice)))
-	fmt.Println("\n\n",prompt)
+	prompt = append(prompt, genai.Text("Don't say anything other than True or False."))
 	resp, err := model.GenerateContent(ctx, prompt...)
 	if err != nil {
 		log.Fatalf("Error generate content:%v", err)
@@ -222,9 +221,12 @@ func printResponse(resp *genai.GenerateContentResponse) {
 	for _, candidate := range resp.Candidates {
 		// Content が nil でないことを確認
 		if candidate.Content != nil {
+			fmt.Println(reflect.TypeOf(candidate.Content.Parts[0]))
 			// Parts に含まれる各テキスト部分をループで処理
 			for _, part := range candidate.Content.Parts {
-				fmt.Println(part)
+				if part == genaiTrue {
+					fmt.Println("true")
+				}
 			}
 		}
 	}
