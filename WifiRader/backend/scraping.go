@@ -42,16 +42,17 @@ func checkmenu(price int, resp []PlaceInfo)(response []PlaceInfo){
 	var i = 0
 	for i < len(resp) {
 		isTrue = false
-		url := resp.URL
+		url := resp[i].URL
 		if visited[url] || scraping(url) {
 			visited[url] = true
-			response = append(response, url)
+			response = append(response, resp[i])
 		}
 		i++
 	}
 	fmt.Println(response)
 	fmt.Println("if error occured when remove png dir:", os.RemoveAll("png"))
 	fmt.Println("if error occured when remove output dir:", os.RemoveAll("output"))
+	return response
 }
 
 func scraping(url string) bool {
