@@ -37,7 +37,7 @@ type PlaceInfo struct {
 // 自動で読み込み
 func init() {
 	apiKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	radius = "700"
+	radius = "1500"
 	keyword = "Wi-Fi study"
 }
 
