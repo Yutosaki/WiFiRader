@@ -47,24 +47,9 @@ func checkmenu(price int, resp []PlaceInfo) (response []PlaceInfo) {
 
 func scraping(url string) bool {
 	c := colly.NewCollector(
-		// Zenn 以外のアクセスを許可しない
-		//colly.AllowedDomains(targetDomain),
-		// ./cache でレスポンスをキャッシュする
-		//colly.CacheDir("./cache"),
-		// アクセスするページの再帰の深さを設定
-		//colly.MaxDepth(2),
-		// ユーザーエージェントを設定
 		colly.UserAgent("Sample-Scraper"),
 	)
 
-	// 	// リクエスト間で1~2秒の時間を空ける
-	// 	c.Limit(&colly.LimitRule{
-	// 		DomainGlob:  targetDomain,
-	// 		Delay:       time.Second,
-	// 		RandomDelay: time.Second,
-	// 	})
-
-	// エラー発生時に実行される関数
 	c.OnError(func(r *colly.Response, err error) {
 		log.Fatalln("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
@@ -115,7 +100,6 @@ func ocr() bool {
 	// Open the image file
 	file, err := os.Open(imageFilePath)
 	if err != nil {
-		//log.Fatalf("Error opening image file: %v", err)
 		log.Printf("Error opening image file: %v\n", err)
 		return false
 	}
@@ -128,7 +112,6 @@ func ocr() bool {
 		return false
 	}
 	if fileinfo.Size() < 100000 {
-		// log.Printf("filesize is so small")
 		return false
 	}
 
@@ -136,14 +119,12 @@ func ocr() bool {
 	ctx := context.Background()
 	result, err := client.RecognizePrintedTextInStream(ctx, true, file, "ja")
 	if err != nil {
-		//log.Fatalf("Error recognizing text: %v", err)
 		log.Printf("Error recognizing text: %v", err)
 		return false
 	}
 
 	// Write the recognized text to the output file
 	if err, ok := writeTextToFile(result); err != nil {
-		//log.Fatalf("Error writing text to file: %v", err)
 		log.Printf("Error writing text to file: %v", err)
 		return false
 	} else {
@@ -198,7 +179,6 @@ func geminiChat(prompt []genai.Part) bool {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(geminiapikey))
 	if err != nil {
-		log.Print(prompt)
 		log.Printf("Error generate new client:%v", err)
 		return false
 	}
