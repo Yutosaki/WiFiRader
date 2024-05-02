@@ -35,7 +35,7 @@ function submitLocationAndAmount() {
     }
 
     const amountInput = document.getElementById('desiredAmount').value;
-    const desiredAmount = parseInt(amountInput, 10); // 文字列を整数に変換
+    const desiredAmount = parseInt(amountInput, 10);
     if (isNaN(desiredAmount)) {  // 数値変換が正しく行われたかチェック
         alert("金額を数値で入力してください。");
         return;
@@ -57,7 +57,7 @@ function submitLocationAndAmount() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data !== null) { // nullチェックを追加
+            if (data !== null) {
                 console.log('Number of places received:', data.length);
                 console.log("Position data:", pos);
                 if (data.length > 0) {
