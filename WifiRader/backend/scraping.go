@@ -2,24 +2,19 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/gocolly/colly/v2"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
-)
-
-const (
-	targetDomain = "zenn.dev"
-	targetURL    = "https://" + targetDomain
 )
 
 var (
@@ -30,15 +25,12 @@ var (
 	isTrue                   = false
 	visited                  = make(map[string]bool)
 	imageFilePath            = ""
-	outputFile               = ""
-	response      []string
+	maxprice      int
 )
 
-var maxprice = 49
-
-func checkmenu(price int, resp []PlaceInfo)(response []PlaceInfo){
+func checkmenu(price int, resp []PlaceInfo) (response []PlaceInfo) {
 	os.Mkdir("png", 0777)
-	os.Mkdir("output", 0777)
+	maxprice = price
 	var i = 0
 	for i < len(resp) {
 		isTrue = false
@@ -47,11 +39,9 @@ func checkmenu(price int, resp []PlaceInfo)(response []PlaceInfo){
 			visited[url] = true
 			response = append(response, resp[i])
 		}
+		os.RemoveAll("png")
 		i++
 	}
-	fmt.Println(response)
-	fmt.Println("if error occured when remove png dir:", os.RemoveAll("png"))
-	fmt.Println("if error occured when remove output dir:", os.RemoveAll("output"))
 	return response
 }
 
@@ -83,32 +73,29 @@ func scraping(url string) bool {
 		prompt := []genai.Part{
 			genai.Text(strings.Join(strings.Fields(e.Text), " ")),
 		}
-		fmt.Println(strings.Join(strings.Fields(e.Text), " "))
 		if geminiChat(prompt) {
 			isTrue = true
 		}
 	})
 	c.OnHTML("img", func(e *colly.HTMLElement) {
 		imageURL := e.Attr("src")
-		fmt.Println("\n************************************")
-		if imageURL[4:] == "http" {
-			makeImageFile(imageURL)
-		}
-		fmt.Println("Image URL:", imageURL)
-		if !strings.Contains(imageURL, "placeholder") {
-			outputFile = "./output/" + imageURL[len(imageURL)-7:] + ".txt"
-			if ocr() {
-				isTrue = true
+		if !visited[imageURL] {
+			if len(imageURL) > 10 && imageURL[4:] == "http" {
+				log.Printf("imageURL")
+				makeImageFile(imageURL)
+				time.Sleep(3 * time.Second)
+				if ocr() {
+					isTrue = true
+				}
+
 			}
+			visited[imageURL] = true
 		}
-		//} else {
-		//	fmt.Println("not png", imageURL)
-		//}
 	})
+
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		menuURL := e.Request.AbsoluteURL(e.Attr("href"))
 		if strings.Contains(menuURL, "menu") && menuURL != url && !visited[url] {
-			fmt.Println("\n\n", menuURL, "\n")
 			if scraping(menuURL) {
 				isTrue = true
 			}
@@ -129,7 +116,7 @@ func ocr() bool {
 	file, err := os.Open(imageFilePath)
 	if err != nil {
 		//log.Fatalf("Error opening image file: %v", err)
-		fmt.Println("Error opening image file: %v", err)
+		log.Printf("Error opening image file: %v\n", err)
 		return false
 	}
 	defer file.Close()
@@ -137,12 +124,11 @@ func ocr() bool {
 	fileinfo, staterr := file.Stat()
 
 	if staterr != nil {
-		fmt.Println("staterr", staterr)
+		log.Printf("staterr error: %v\n", staterr)
 		return false
 	}
-	fmt.Println("filesize:", fileinfo.Size())
 	if fileinfo.Size() < 100000 {
-		fmt.Println("filesize is so small")
+		// log.Printf("filesize is so small")
 		return false
 	}
 
@@ -151,14 +137,14 @@ func ocr() bool {
 	result, err := client.RecognizePrintedTextInStream(ctx, true, file, "ja")
 	if err != nil {
 		//log.Fatalf("Error recognizing text: %v", err)
-		fmt.Println("Error recognizing text: %v", err)
+		log.Printf("Error recognizing text: %v", err)
 		return false
 	}
 
 	// Write the recognized text to the output file
 	if err, ok := writeTextToFile(result); err != nil {
 		//log.Fatalf("Error writing text to file: %v", err)
-		fmt.Println("Error writing text to file: %v", err)
+		log.Printf("Error writing text to file: %v", err)
 		return false
 	} else {
 		return ok
@@ -170,25 +156,24 @@ func makeImageFile(url string) {
 	_, err := os.Stat(imageFilePath)
 	if !os.IsNotExist(err) {
 		err := os.Remove(imageFilePath)
-		fmt.Println("IsExist")
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatalf("Error get url", err)
+		log.Printf("Error get url: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error read all: %v", err)
 	}
 
 	file, err := os.Create(imageFilePath)
 	if err != nil {
-		panic(err)
+		log.Printf("Error create image file: %v", err)
 	}
 	defer file.Close()
 
@@ -196,23 +181,12 @@ func makeImageFile(url string) {
 }
 
 func writeTextToFile(result computervision.OcrResult) (error, bool) {
-	file, err := os.Create(outputFile)
-	if err != nil {
-		return err, false
-	}
-	defer file.Close()
-
 	var prompt []genai.Part
 	for _, region := range *result.Regions {
 		for _, line := range *region.Lines {
 			for _, word := range *line.Words {
 				if word.Text != nil {
-					_, err := file.WriteString(*word.Text)
-					//fmt.Print(*word.Text)
 					prompt = append(prompt, genai.Text(*word.Text))
-					if err != nil {
-						return err, false
-					}
 				}
 			}
 		}
@@ -224,7 +198,9 @@ func geminiChat(prompt []genai.Part) bool {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(geminiapikey))
 	if err != nil {
-		log.Fatalf("Error generate new client:%v", err)
+		log.Print(prompt)
+		log.Printf("Error generate new client:%v", err)
+		return false
 	}
 	model := client.GenerativeModel("gemini-pro")
 	prompt = append(prompt, genai.Text("What is the lowest price. Answer true or false whether it is less than"))
@@ -232,7 +208,8 @@ func geminiChat(prompt []genai.Part) bool {
 	prompt = append(prompt, genai.Text("Don't say anything other than True or False."))
 	resp, err := model.GenerateContent(ctx, prompt...)
 	if err != nil {
-		log.Fatalf("Error generate content:%v", err)
+		log.Printf("Error generate content:%v", err)
+		return false
 	}
 	return printResponse(resp)
 }
