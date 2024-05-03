@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/cognitiveservices/v3.0/computervision"
 	"github.com/Azure/go-autorest/autorest"
@@ -66,9 +65,7 @@ func scraping(url string) bool {
 		imageURL := e.Attr("src")
 		if !visited[imageURL] {
 			if len(imageURL) > 10 && imageURL[4:] == "http" {
-				log.Printf("imageURL")
 				makeImageFile(imageURL)
-				time.Sleep(3 * time.Second)
 				if ocr() {
 					isTrue = true
 				}
