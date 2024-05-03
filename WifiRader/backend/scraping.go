@@ -78,9 +78,7 @@ func scraping(url string) bool {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		menuURL := e.Request.AbsoluteURL(e.Attr("href"))
 		if strings.Contains(menuURL, "menu") && menuURL != url && !visited[url] {
-			if scraping(menuURL) {
-				isTrue = true
-			}
+			scraping(menuURL)
 		}
 		visited[url] = true
 	})
@@ -103,7 +101,6 @@ func ocr() bool {
 	defer file.Close()
 
 	fileinfo, staterr := file.Stat()
-
 	if staterr != nil {
 		log.Printf("staterr error: %v\n", staterr)
 		return false
