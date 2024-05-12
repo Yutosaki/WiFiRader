@@ -21,12 +21,44 @@ function initMap() {
                 title: '現在地'
             });
         }, function() {
-            handleLocationError(true, map, map.getCenter());
+            handleLocationError(true, { lat:35.681236, lng: 139.767125 });//東京駅
         });
     } else {
-        handleLocationError(false, null, { lat: -34.397, lng: 150.644 });
+        handleLocationError(false, { lat:35.681236, lng: 139.767125 });
     }
 }
+
+function handleLocationError(browserHasGeolocation, pos) {
+    console.log(browserHasGeolocation ?
+        'Error: The Geolocation service failed.' :
+        'Error: Your browser does not support geolocation.');
+    var map = new google.maps.Map(document.getElementById('map'), {
+        center: pos,
+        zoom: 15
+    });
+    new google.maps.Marker({
+        position: pos,
+        map: map,
+        title: 'Default Location'
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('toggleButton');
+    const sidebar = document.getElementById('sidebar');
+    let isSidebarOpen = true;
+
+    toggleButton.addEventListener('click', function() {
+        if (isSidebarOpen) {
+            sidebar.style.transform = 'translateX(-100%)'; // サイドバーを左に隠す
+        } else {
+            sidebar.style.transform = 'translateX(0)'; // サイドバーを表示
+        }
+        isSidebarOpen = !isSidebarOpen;
+    });
+
+    initMap();//現在地の読み込み
+});
 
 function submitLocationAndAmount() {
     if (!navigator.geolocation) {
@@ -166,34 +198,3 @@ function addMarkerAndUrl(places, pos) {
     });
 }
 
-function handleLocationError(browserHasGeolocation, map, pos) {
-    console.log(browserHasGeolocation ?
-        'Error: The Geolocation service failed.' :
-        'Error: Your browser does not support geolocation.');
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: pos,
-        zoom: 15
-    });
-    new google.maps.Marker({
-        position: pos,
-        map: map,
-        title: 'Default Location'
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleButton = document.getElementById('toggleButton');
-    const sidebar = document.getElementById('sidebar');
-    let isSidebarOpen = true;
-
-    toggleButton.addEventListener('click', function() {
-        if (isSidebarOpen) {
-            sidebar.style.transform = 'translateX(-100%)'; // サイドバーを左に隠す
-        } else {
-            sidebar.style.transform = 'translateX(0)'; // サイドバーを表示
-        }
-        isSidebarOpen = !isSidebarOpen;
-    });
-
-    initMap();//現在地の読み込み
-});
