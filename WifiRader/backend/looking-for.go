@@ -13,7 +13,6 @@ type PlaceSearchResponse struct {
 	Results []struct {
 		Name     string `json:"name"`
 		PlaceID  string `json:"place_id"`
-		Vicinity string `json:"vicinity"`
 		Geometry struct {
 			Location struct {
 				Lat float64 `json:"lat"`
