@@ -1,7 +1,6 @@
+!.gitignore
 .*
 ../../
-
 .DS_Store
 .history/
-!.gitignore
-.env
+*.env
