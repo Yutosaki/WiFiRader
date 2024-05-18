@@ -1,0 +1,7 @@
+.*
+../../
+
+.DS_Store
+.history/
+!.gitignore
+.env
