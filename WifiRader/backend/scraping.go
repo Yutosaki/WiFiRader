@@ -24,7 +24,6 @@ var (
 	visited                  = make(map[string]bool)
 	imageFilePath            = ""
 	maxprice      int
-	// sem                      = make(chan struct{}, 20) // semaphore with a capacity of 20
 )
 
 func checkmenu(price int, resp []PlaceInfo) (response []PlaceInfo) {
@@ -43,32 +42,6 @@ func checkmenu(price int, resp []PlaceInfo) (response []PlaceInfo) {
 	}
 	return response
 }
-
-// func checkmenu(price int, resp []PlaceInfo) (response []PlaceInfo) {
-// 	os.Mkdir("png", 0777)
-// 	maxprice = price
-
-// 	// Prepare a slice of URLs to scrape
-// 	var urls []string
-// 	for _, r := range resp {
-// 		urls = append(urls, r.URL)
-// 	}
-
-// 	// Use asyncScraping function to scrape the URLs
-// 	results := asyncScraping(urls)
-
-// 	// Append the responses to the result
-// 	for i, result := range results {
-// 		if result {
-// 			response = append(response, resp[i])
-// 		}
-// 	}
-
-// 	os.RemoveAll("png")
-// 	return response
-// }
-
-
 
 func scraping(url string) bool {
 	c := colly.NewCollector(
